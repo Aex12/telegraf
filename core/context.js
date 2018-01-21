@@ -122,6 +122,14 @@ class TelegrafContext {
       (this.chosenInlineResult && this.chosenInlineResult.from)
   }
 
+  get msg () {
+    return this.message ||
+      this.editedMessage ||
+      this.channelPost ||
+      this.editedChannelPost ||
+      (this.callbackQuery && this.callbackQuery.message);
+  }
+
   get state () {
     if (!this.contextState) {
       this.contextState = {}
@@ -264,10 +272,8 @@ class TelegrafContext {
   }
 
   quote (text, extra) {
-    this.assert(this.chat, 'quote')
-    this.assert(this.message, 'quote')
-    extra = Object.assign({reply_to_message_id: this.message.message_id}, extra);
-    return this.telegram.sendMessage(this.chat.id, text, extra)
+    this.assert(this.chat && this.msg, 'quote')
+    return this.telegram.sendMessage(this.chat.id, text, Object.assign({reply_to_message_id: this.msg.message_id}, extra))
   }
 
   getChat (...args) {
