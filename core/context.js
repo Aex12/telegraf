@@ -437,8 +437,8 @@ class TelegrafContext {
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
-  replyAndQuote (text, extra) {
-    this.assert(this.message, 'replyAndQuote')
+  replyWithQuote (text, extra) {
+    this.assert(this.message, 'replyWithQuote')
     return this.reply(text, Object.assign({ 'reply_to_message_id': this.message.message_id }, extra))
   }
 
