@@ -67,11 +67,27 @@ class TelegrafContext {
   }
 
   get message () {
-     return this.update.message ||
+    return this.update.message ||
       this.update.edited_message ||
       this.update.channel_post ||
       this.update.edited_channel_post ||
       (this.update.callback_query && this.update.callback_query.message);
+  }
+
+  get isNewMessage () {
+    return (this.updateType === "message")
+  }
+
+  get isEditedMessage () {
+    return (this.updateType === "edited_message")
+  }
+
+  get isChannelPost () {
+    return (this.updateType === "channel_post")
+  }
+
+  get isEditedChannelPost() {
+    return (this.updateType === "edited_channel_post")
   }
 
   get inlineQuery () {
