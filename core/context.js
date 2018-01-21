@@ -95,20 +95,13 @@ class TelegrafContext {
   }
 
   get chat () {
-    return (this.message && this.message.chat) ||
-      (this.editedMessage && this.editedMessage.chat) ||
-      (this.callbackQuery && this.callbackQuery.message && this.callbackQuery.message.chat) ||
-      (this.channelPost && this.channelPost.chat) ||
-      (this.editedChannelPost && this.editedChannelPost.chat)
+    return (this.message && this.message.chat)
   }
 
   get from () {
-    return (this.message && this.message.from) ||
-      (this.editedMessage && this.editedMessage.from) ||
-      (this.callbackQuery && this.callbackQuery.from) ||
+    return (this.callbackQuery && this.callbackQuery.from) ||
+      (this.message && this.message.from) ||
       (this.inlineQuery && this.inlineQuery.from) ||
-      (this.channelPost && this.channelPost.from) ||
-      (this.editedChannelPost && this.editedChannelPost.from) ||
       (this.shippingQuery && this.shippingQuery.from) ||
       (this.preCheckoutQuery && this.preCheckoutQuery.from) ||
       (this.chosenInlineResult && this.chosenInlineResult.from)
@@ -451,14 +444,8 @@ class TelegrafContext {
   }
 
   deleteMessage () {
-    const message = this.message ||
-      this.editedMessage ||
-      this.channelPost ||
-      this.editedChannelPost ||
-      (this.callbackQuery && this.callbackQuery.message)
-
-    this.assert(message && this.chat, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, message.message_id)
+    this.assert(this.message && this.chat, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, this.message.message_id)
   }
 }
 
