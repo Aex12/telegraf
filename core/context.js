@@ -67,11 +67,11 @@ class TelegrafContext {
   }
 
   get message () {
-    return this.update.message
-  }
-
-  get editedMessage () {
-    return this.update.edited_message
+     return this.update.message ||
+      this.update.edited_message ||
+      this.update.channel_post ||
+      this.update.edited_channel_post ||
+      (this.update.callback_query && this.update.callback_query.message);
   }
 
   get inlineQuery () {
@@ -88,14 +88,6 @@ class TelegrafContext {
 
   get chosenInlineResult () {
     return this.update.chosen_inline_result
-  }
-
-  get channelPost () {
-    return this.update.channel_post
-  }
-
-  get editedChannelPost () {
-    return this.update.edited_channel_post
   }
 
   get callbackQuery () {
@@ -120,14 +112,6 @@ class TelegrafContext {
       (this.shippingQuery && this.shippingQuery.from) ||
       (this.preCheckoutQuery && this.preCheckoutQuery.from) ||
       (this.chosenInlineResult && this.chosenInlineResult.from)
-  }
-
-  get msg () {
-    return this.message ||
-      this.editedMessage ||
-      this.channelPost ||
-      this.editedChannelPost ||
-      (this.callbackQuery && this.callbackQuery.message);
   }
 
   get state () {
@@ -269,11 +253,6 @@ class TelegrafContext {
   reply (...args) {
     this.assert(this.chat, 'reply')
     return this.telegram.sendMessage(this.chat.id, ...args)
-  }
-
-  quote (text, extra) {
-    this.assert(this.chat && this.msg, 'quote')
-    return this.telegram.sendMessage(this.chat.id, text, Object.assign({reply_to_message_id: this.msg.message_id}, extra))
   }
 
   getChat (...args) {
@@ -456,6 +435,11 @@ class TelegrafContext {
   addStickerToSet (...args) {
     this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
+  }
+
+  replyAndQuote (text, extra) {
+    this.assert(this.message, 'replyAndQuote')
+    return this.reply(text, Object.assign({ 'reply_to_message_id': this.message.message_id }, extra))
   }
 
   replyWithMarkdown (markdown, extra) {
