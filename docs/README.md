@@ -1,5 +1,5 @@
 ## What did you added to Telegraf?
-You can check all the additions I made on [`additions.md`](https://github.com/Aex12/telegraf/tree/master/docs/additions) file.
+You can check all the additions I made on [`additions.md`](https://github.com/Aex12/telegraf/tree/master/docs/additions.md) file.
 
 ## telegraf.js
 
