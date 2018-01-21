@@ -18,6 +18,14 @@ class Composer {
     return this.use(Composer.hears(triggers, ...fns))
   }
 
+  onInlineQuery (triggers, ...fns) {
+    return this.use(Composer.onInlineQuery(triggers, ...fns))
+  }
+
+  onChosenInlineResult (triggers, ...fns) {
+    return this.use(Composer.onChosenInlineResult(triggers, ...fns))
+  }
+
   command (commands, ...fns) {
     return this.use(Composer.command(commands, ...fns))
   }
@@ -125,6 +133,14 @@ class Composer {
     return Composer.mount('text', Composer.match(normalizeTriggers(triggers), ...fns))
   }
 
+  static onInlineQuery (triggers, ...fns) {
+    return Composer.mount('inline_query', Composer.match(normalizeTriggers(triggers), ...fns))
+  }
+
+  static onChosenInlineResult (triggers, ...fns) {
+    return Composer.mount('chosen_inline_result', Composer.match(normalizeTriggers(triggers), ...fns))
+  }
+
   static entity (predicate, ...fns) {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
@@ -178,7 +194,9 @@ class Composer {
     return Composer.lazy((ctx) => {
       const text = (
         (ctx.message && (ctx.message.caption || ctx.message.text)) ||
-        (ctx.callbackQuery && ctx.callbackQuery.data)
+        (ctx.callbackQuery && ctx.callbackQuery.data) ||
+        (ctx.inlineQuery && ctx.inlineQuery.query) ||
+        (ctx.chosenInlineResult && ctx.chosenInlineResult.query)
       )
       for (let trigger of triggers) {
         ctx.match = trigger(text, ctx)
