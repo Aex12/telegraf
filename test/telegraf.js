@@ -10,12 +10,12 @@ const baseMessage = {
 const updateTypes = [
   { type: 'shipping_query', prop: 'shippingQuery', update: { shipping_query: {} } },
   { type: 'message', prop: 'message', update: { message: baseMessage } },
-  { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
+  { type: 'edited_message', prop: 'message', update: { edited_message: baseMessage } },
   { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
-  { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'channel_post', prop: 'message', update: { channel_post: {} } },
   { type: 'pre_checkout_query', prop: 'preCheckoutQuery', update: { pre_checkout_query: {} } },
-  { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
+  { type: 'edited_channel_post', prop: 'message', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
 
