@@ -263,6 +263,13 @@ class TelegrafContext {
     return this.telegram.sendMessage(this.chat.id, ...args)
   }
 
+  quote (text, extra) {
+    this.assert(this.chat, 'quote')
+    this.assert(this.message, 'quote')
+    extra = Object.assign({reply_to_message_id: this.message.message_id}, extra);
+    return this.telegram.sendMessage(this.chat.id, text, extra)
+  }
+
   getChat (...args) {
     this.assert(this.chat, 'getChat')
     return this.telegram.getChat(this.chat.id, ...args)
