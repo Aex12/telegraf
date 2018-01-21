@@ -1,3 +1,6 @@
+## What did you added to Telegraf?
+You can check all the additions I made on [`additions.md`](https://github.com/Aex12/telegraf/tree/master/docs/additions) file.
+
 ## telegraf.js
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
