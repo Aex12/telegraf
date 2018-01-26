@@ -193,8 +193,8 @@ class Composer {
   static match (triggers, ...fns) {
     return Composer.lazy((ctx) => {
       const text = (
-        (ctx.message && (ctx.message.caption || ctx.message.text)) ||
         (ctx.callbackQuery && ctx.callbackQuery.data) ||
+        (ctx.message && (ctx.message.caption || ctx.message.text)) ||
         (ctx.inlineQuery && ctx.inlineQuery.query) ||
         (ctx.chosenInlineResult && ctx.chosenInlineResult.query)
       )
