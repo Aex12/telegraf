@@ -5,7 +5,7 @@ class Queue {
     this.telegram = telegram
     this.interval = interval
     this.queue = []
-    this.interval_id = setInterval(_processQueue, interval)
+    this.interval_id = setInterval(this._processQueue.bind(this), interval)
     return this;
   }
 
