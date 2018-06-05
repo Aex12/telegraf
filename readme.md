@@ -5,7 +5,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](docs/header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.5-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.6-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
@@ -14,7 +14,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ### Features
 
-- Full [Telegram Bot API 3.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.6](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -22,6 +22,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [now](https://now.sh)/[Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
+- `TypeScript` typings
 
 ### Installation
 
@@ -39,25 +40,24 @@ $ yarn add telegraf
 const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => {
-  console.log('started:', ctx.from.id)
-  return ctx.reply('Welcome!')
-})
-bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
-bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
+
+bot.start((ctx) => ctx.reply('Welcome!'))
+bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy'))
+
 bot.startPolling()
 ```
 
+
 ```js
 const Telegraf = require('telegraf')
-const { reply } = Telegraf
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('/oldschool', (ctx) => ctx.reply('Hello'))
 bot.command('/modern', ({ reply }) => reply('Yo'))
-bot.command('/hipster', reply('λ'))
+bot.command('/hipster', Telegraf.reply('λ'))
 bot.startPolling()
 ```
 

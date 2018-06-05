@@ -1,4 +1,4 @@
-const updateTypes = [
+const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
@@ -10,7 +10,7 @@ const updateTypes = [
   'message'
 ]
 
-const updateMessageSubTypes = [
+const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -35,7 +35,8 @@ const updateMessageSubTypes = [
   'delete_chat_photo',
   'contact',
   'channel_chat_created',
-  'audio'
+  'audio',
+  'connected_website'
 ]
 
 class TelegrafContext {
@@ -43,16 +44,12 @@ class TelegrafContext {
     this.tg = telegram
     this.update = update
     this.options = options
-
-    if ('message' in this.update) {
-      this.updateType = 'message'
-      this.updateSubTypes = updateMessageSubTypes
-        .filter((key) => key in this.update.message)
+    this.updateType = UpdateTypes.find((key) => key in this.update)
+    if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
+      this.updateSubTypes = MessageSubTypes.filter((key) => key in this.update[this.updateType])
     } else {
-      this.updateType = updateTypes.find((key) => key in this.update)
       this.updateSubTypes = []
     }
-
     Object.getOwnPropertyNames(TelegrafContext.prototype)
       .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
       .forEach((key) => (this[key] = this[key].bind(this)))
@@ -134,6 +131,14 @@ class TelegrafContext {
     this.contextState = Object.assign({}, value)
   }
 
+  get webhookReply () {
+    return this.tg.webhookReply
+  }
+
+  set webhookReply (enable) {
+    this.tg.webhookReply = enable
+  }
+
   assert (value, method) {
     if (!value) {
       throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)
@@ -189,7 +194,7 @@ class TelegrafContext {
       )
   }
 
-  editMessageCaption (caption, markup) {
+  editMessageCaption (caption, extra) {
     this.assert(this.callbackQuery, 'editMessageCaption')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageCaption(
@@ -197,14 +202,14 @@ class TelegrafContext {
         undefined,
         this.callbackQuery.inline_message_id,
         caption,
-        markup
+        extra
       )
       : this.telegram.editMessageCaption(
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
         caption,
-        markup
+        extra
       )
   }
 
@@ -459,9 +464,13 @@ class TelegrafContext {
     return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
   }
 
-  deleteMessage () {
-    this.assert(this.message && this.chat, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, this.message.message_id)
+  deleteMessage (messageId) {
+    this.assert(this.chat, 'deleteMessage')
+    if (typeof messageId !== 'undefined') {
+      return this.telegram.deleteMessage(this.chat.id, messageId)
+    }
+    this.assert(this.message, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 }
 
