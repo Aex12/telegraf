@@ -32,7 +32,7 @@ class Queue {
     if(interval)
       this.interval = interval
     
-    this.interval_id = setInterval(_processQueue, this.interval)
+    this.interval_id = setInterval(this._processQueue.bind(this), this.interval)
   }
 
   getMe () {
