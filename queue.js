@@ -43,8 +43,12 @@ class Queue {
     return this.enqueue('getFile', {file_id: fileId})
   }
 
+  getWebhookInfo () {
+    return this.enqueue(`getWebhookInfo`)
+  }
+
   getGameHighScores (userId, inlineMessageId, chatId, messageId) {
-    return this.enqueue('getGameHighScores', {
+    return this.enqueue(`getGameHighScores`, {
       user_id: userId,
       inline_message_id: inlineMessageId,
       chat_id: chatId,
@@ -53,7 +57,7 @@ class Queue {
   }
 
   setGameScore (userId, score, inlineMessageId, chatId, messageId, editMessage = true, force) {
-    return this.enqueue('setGameScore', {
+    return this.enqueue(`setGameScore`, {
       user_id: userId,
       score: score,
       inline_message_id: inlineMessageId,
@@ -261,13 +265,14 @@ class Queue {
     }, extra))
   }
 
-  editMessageCaption (chatId, messageId, inlineMessageId, caption, markup) {
+  editMessageCaption (chatId, messageId, inlineMessageId, caption, extra) {
     return this.enqueue('editMessageCaption', {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       caption: caption,
-      reply_markup: markup
+      parse_mode: extra.parse_mode,
+      reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
     })
   }
 
