@@ -368,17 +368,15 @@ class NoDelayQueue extends Queue {
   freeSlot (chat_id) {
     if (chat_id) {
       this.chat_actions_done[chat_id] -= 1;
+      if (this.isAvailable())
+        this.doNext();
     } else {
       this.global_actions_done -= 1;
+      this.doNext();
     }
-
-    this.doNext(chat_id);
   }
 
-  doNext (chat_id) {
-    if (chat_id && !this.isAvailable())
-      return false;
-
+  doNext () {
     for (i = 0; i < this.queue.length; i++) {
       var action = this.queue[i];
 
