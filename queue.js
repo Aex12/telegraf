@@ -1,38 +1,8 @@
 const replicators = require('./core/replicators')
 
 class Queue {
-  constructor (telegram, interval) {
-    this.telegram = telegram
-    this.interval = interval
-    this.queue = []
-    this.interval_id = setInterval(this._processQueue.bind(this), interval)
-    return this;
-  }
-
-  _processQueue () {
-    if(this.queue.length !== 0){
-      let request = this.queue.shift()
-      this.telegram.callApi(request.method, request.params)
-      .then(request.resolve)
-      .catch(request.reject)
-    }
-  }
-
-  enqueue (method, params) {
-    return new Promise((resolve, reject) => {
-      this.queue.push({method, params, resolve, reject});
-    });
-  }
-
-  stop () {
-    clearInterval(this.interval_id)
-  }
-
-  start (interval) {
-    if(interval)
-      this.interval = interval
-    
-    this.interval_id = setInterval(this._processQueue.bind(this), this.interval)
+  constructor (telegram) {
+    this.telegram = telegram;
   }
 
   getMe () {
@@ -375,4 +345,81 @@ class Queue {
 
 }
 
-module.exports = Queue
+class NoDelayQueue extends Queue {
+  constructor (telegram, options={}) {
+    super(telegram);
+    this.max = options.max || 30;
+    this.time_span = options.time_span || ( 60 * 1000 )
+
+    this.queue = [];
+    this.actions_done = 0;
+  }
+
+  isAvailable () {
+    return (this.actions_done < this.max)
+  }
+
+  freeSlot () {
+    this.actions_done -= 1;
+    if (this.queue.length !== 0)
+      this.do(this.queue.shift());
+  }
+
+  do (action) {
+    this.actions_done += 1;
+
+    this.telegram.callApi(action.method, action.params)
+    .then(action.resolve)
+    .catch(action.reject);
+    
+    setTimeout(this.freeSlot.bind(this), this.time_span);
+  }
+
+  enqueue (method, params) {
+    return new Promise((resolve, reject) => {
+      if (this.isAvailable())
+        this.do({method,params,resolve,reject});
+      else 
+        this.queue.push({method,params,resolve,reject})
+    });
+  }
+}
+
+class IntervalQueue extends Queue {
+  constructor (telegram, interval) {
+    super(telegram)
+    
+    this.interval = interval
+    this.queue = []
+    this.interval_id = setInterval(this._processQueue.bind(this), interval)
+    return this;
+  }
+
+  _processQueue () {
+    if(this.queue.length !== 0){
+      let request = this.queue.shift()
+      this.telegram.callApi(request.method, request.params)
+      .then(request.resolve)
+      .catch(request.reject)
+    }
+  }
+
+  enqueue (method, params) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({method, params, resolve, reject});
+    });
+  }
+
+  stop () {
+    clearInterval(this.interval_id)
+  }
+
+  start (interval) {
+    if(interval)
+      this.interval = interval
+    
+    this.interval_id = setInterval(this._processQueue.bind(this), this.interval)
+  }
+}
+
+module.exports = {NoDelayQueue, IntervalQueue}
