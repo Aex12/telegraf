@@ -377,6 +377,7 @@ class NoDelayQueue extends Queue {
   }
 
   doNext () {
+    var i;
     for (i = 0; i < this.queue.length; i++) {
       var action = this.queue[i];
 
