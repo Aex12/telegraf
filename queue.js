@@ -392,7 +392,6 @@ class IntervalQueue extends Queue {
     this.interval = interval
     this.queue = []
     this.interval_id = setInterval(this._processQueue.bind(this), interval)
-    return this;
   }
 
   _processQueue () {
