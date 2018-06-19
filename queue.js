@@ -348,36 +348,69 @@ class Queue {
 class NoDelayQueue extends Queue {
   constructor (telegram, options={}) {
     super(telegram);
-    this.max = options.max || 30;
-    this.time_span = options.time_span || ( 60 * 1000 )
+    this.global_max = options.global_max || 30;
+    this.chat_max = options.chat_max || 20;
+    this.global_time_span = options.global_time_span || ( 1000 )
+    this.chat_time_span = options.chat_time_span || ( 60 * 1000 )
 
     this.queue = [];
-    this.actions_done = 0;
+    this.chat_actions_done = {};
+    this.global_actions_done = 0;
   }
 
-  isAvailable () {
-    return (this.actions_done < this.max)
+  isAvailable (chat_id) {
+    if (chat_id)
+      return ((this.chat_actions_done[chat_id] || 0) < this.chat_max && this.isAvailable());
+    else
+      return (this.global_actions_done < this.global_max);
   }
 
-  freeSlot () {
-    this.actions_done -= 1;
-    if (this.queue.length !== 0)
-      this.do(this.queue.shift());
+  freeSlot (chat_id) {
+    if (chat_id) {
+      this.chat_actions_done[chat_id] -= 1;
+    } else {
+      this.global_actions_done -= 1;
+    }
+
+    this.doNext(chat_id);
+  }
+
+  doNext (chat_id) {
+    if (chat_id && !this.isAvailable())
+      return false;
+
+    for (i = 0; i < this.queue.length; i++) {
+      var action = this.queue[i];
+
+      if (this.isAvailable(action.params.chat_id)) {
+        this.queue.splice(i,1);
+        this.do(action);
+      } else {
+        continue;
+      }
+
+    }
   }
 
   do (action) {
-    this.actions_done += 1;
+    this.global_actions_done += 1;
+
+    var chat_id = action.params.chat_id;
+    if (chat_id) 
+      this.chat_actions_done[chat_id] = (this.chat_actions_done[chat_id] || 0) + 1;
 
     this.telegram.callApi(action.method, action.params)
     .then(action.resolve)
     .catch(action.reject);
     
-    setTimeout(this.freeSlot.bind(this), this.time_span);
+    setTimeout(this.freeSlot.bind(this), this.global_time_span);
+    if (chat_id)
+      setTimeout(this.freeSlot.bind(this), this.chat_time_span, chat_id);
   }
 
   enqueue (method, params) {
     return new Promise((resolve, reject) => {
-      if (this.isAvailable())
+      if (this.isAvailable(params.chat_id))
         this.do({method,params,resolve,reject});
       else 
         this.queue.push({method,params,resolve,reject})
